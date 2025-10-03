@@ -1,0 +1,168 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="admin-header">
+    <h1>Manage Questions</h1>
+    <div class="admin-actions">
+      <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+      <button onclick="showAddForm()" class="btn btn-primary">Add New Question</button>
+    </div>
+  </div>
+
+  <% if (success) { %>
+    <div class="success-message">
+      <%= success %>
+    </div>
+  <% } %>
+
+  <% if (error) { %>
+    <div class="error-message" style="background-color: #fee; padding: 1rem; border-radius: 0.375rem; margin-bottom: 1rem;">
+      <%= error %>
+    </div>
+  <% } %>
+
+   Add Question Form (Hidden by default) 
+  <div id="addQuestionForm" class="card" style="display: none; margin-bottom: 2rem;">
+    <h2>Add New Question</h2>
+    <form action="/admin/questions/add" method="POST">
+      <div class="form-group">
+        <label for="questionText">Question Text <span class="required">*</span></label>
+        <textarea id="questionText" name="questionText" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="questionType">Question Type <span class="required">*</span></label>
+        <select id="questionType" name="questionType" required onchange="toggleOptions()">
+          <option value="text">Text Input</option>
+          <option value="textarea">Text Area</option>
+          <option value="radio">Radio Button</option>
+          <option value="dropdown">Dropdown</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="optionsGroup" style="display: none;">
+        <label for="options">Options (comma-separated)</label>
+        <input type="text" id="options" name="options" placeholder="Option 1, Option 2, Option 3">
+        <small style="color: var(--text-light);">For radio buttons and dropdowns</small>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="basic">Basic Information</option>
+          <option value="performance" selected>Performance</option>
+          <option value="leadership">Leadership</option>
+          <option value="feedback">Feedback</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="required" checked>
+          Required Question
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="hasFollowUp" id="hasFollowUp" onchange="toggleFollowUp()">
+          Has Follow-up Question
+        </label>
+      </div>
+
+      <div id="followUpGroup" style="display: none;">
+        <div class="form-group">
+          <label for="followUpCondition">Show follow-up when answer is:</label>
+          <input type="text" id="followUpCondition" name="followUpCondition" placeholder="e.g., No">
+        </div>
+
+        <div class="form-group">
+          <label for="followUpQuestion">Follow-up Question:</label>
+          <input type="text" id="followUpQuestion" name="followUpQuestion" placeholder="Please explain why:">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Add Question</button>
+        <button type="button" onclick="hideAddForm()" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+   Questions List 
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Question</th>
+          <th>Type</th>
+          <th>Category</th>
+          <th>Required</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (questions.length === 0) { %>
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem;">
+              No questions found. Add your first question above.
+            </td>
+          </tr>
+        <% } else { %>
+          <% questions.forEach((question, index) => { %>
+            <tr>
+              <td><%= question.order %></td>
+              <td><%= question.questionText %></td>
+              <td><%= question.questionType %></td>
+              <td><%= question.category %></td>
+              <td><%= question.required ? 'Yes' : 'No' %></td>
+              <td>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="/admin/questions/edit/<%= question._id %>" class="btn btn-small btn-secondary">Edit</a>
+                  <form action="/admin/questions/delete/<%= question._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this question?')">
+                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function showAddForm() {
+    document.getElementById('addQuestionForm').style.display = 'block';
+  }
+
+  function hideAddForm() {
+    document.getElementById('addQuestionForm').style.display = 'none';
+  }
+
+  function toggleOptions() {
+    const questionType = document.getElementById('questionType').value;
+    const optionsGroup = document.getElementById('optionsGroup');
+    
+    if (questionType === 'radio' || questionType === 'dropdown') {
+      optionsGroup.style.display = 'block';
+    } else {
+      optionsGroup.style.display = 'none';
+    }
+  }
+
+  function toggleFollowUp() {
+    const hasFollowUp = document.getElementById('hasFollowUp').checked;
+    const followUpGroup = document.getElementById('followUpGroup');
+    
+    if (hasFollowUp) {
+      followUpGroup.style.display = 'block';
+    } else {
+      followUpGroup.style.display = 'none';
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

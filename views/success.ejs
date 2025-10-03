@@ -1,0 +1,23 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div style="text-align: center; padding: 4rem 0;">
+    <div style="width: 80px; height: 80px; background-color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    
+    <h1 style="color: var(--success); margin-bottom: 1rem;">Survey Submitted Successfully!</h1>
+    <p style="color: var(--text-light); font-size: 1.125rem; margin-bottom: 2rem;">
+      Thank you for taking the time to complete this survey. Your feedback is valuable and will help us improve.
+    </p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="/" class="btn btn-primary">Return Home</a>
+      <a href="/survey" class="btn btn-secondary">Submit Another Response</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

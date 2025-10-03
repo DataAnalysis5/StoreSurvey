@@ -1,0 +1,41 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <div class="admin-actions">
+      <a href="/admin/questions" class="btn btn-primary">Manage Questions</a>
+      <a href="/responses" class="btn btn-secondary">View Responses</a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card">
+      <h3>Total Questions</h3>
+      <p style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 0;"><%= questionCount %></p>
+    </div>
+
+    <div class="card">
+      <h3>Total Responses</h3>
+      <p style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin: 0;"><%= responseCount %></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Quick Actions</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+      <a href="/admin/questions" class="btn btn-primary">Add New Question</a>
+      <a href="/responses" class="btn btn-secondary">View All Responses</a>
+      <a href="/responses/export" class="btn btn-success">Export to CSV</a>
+      <a href="/survey" class="btn btn-secondary">Preview Survey</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>System Information</h2>
+    <p><strong>Logged in as:</strong> <%= username %></p>
+    <p><strong>Role:</strong> Administrator</p>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

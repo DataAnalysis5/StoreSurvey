@@ -1,0 +1,67 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="admin-header">
+    <h1>Response Detail</h1>
+    <div class="admin-actions">
+      <a href="/responses" class="btn btn-secondary">Back to Responses</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Basic Information</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+      <div>
+        <strong>Submission Date:</strong>
+        <p><%= new Date(response.submittedAt).toLocaleString() %></p>
+      </div>
+      <div>
+        <strong>Store Name:</strong>
+        <p><%= response.storeName %></p>
+      </div>
+      <div>
+        <strong>Store Code:</strong>
+        <p><%= response.storeCode %></p>
+      </div>
+      <div>
+        <strong>Employee Name:</strong>
+        <p><%= response.employeeName %></p>
+      </div>
+      <div>
+        <strong>Department:</strong>
+        <p><%= response.department %></p>
+      </div>
+      <div>
+        <strong>Email:</strong>
+        <p><%= response.email %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Survey Answers</h2>
+    <% response.answers.forEach((answer, index) => { %>
+      <div style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
+        <p style="font-weight: 600; margin-bottom: 0.5rem;">
+          Q<%= index + 1 %>: <%= answer.questionText %>
+        </p>
+        <p style="color: var(--text); margin-bottom: 0.5rem;">
+          <strong>Answer:</strong> <%= answer.answer %>
+        </p>
+        <% if (answer.followUpAnswer) { %>
+          <p style="color: var(--text-light); font-style: italic;">
+            <strong>Follow-up:</strong> <%= answer.followUpAnswer %>
+          </p>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <form action="/responses/delete/<%= response._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this response? This action cannot be undone.')">
+      <button type="submit" class="btn btn-danger">Delete Response</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

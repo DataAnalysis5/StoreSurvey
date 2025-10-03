@@ -1,0 +1,97 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="form-container">
+    <h1>Edit Question</h1>
+
+    <form action="/admin/questions/edit/<%= question._id %>" method="POST">
+      <div class="form-group">
+        <label for="questionText">Question Text <span class="required">*</span></label>
+        <textarea id="questionText" name="questionText" required><%= question.questionText %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="questionType">Question Type <span class="required">*</span></label>
+        <select id="questionType" name="questionType" required onchange="toggleOptions()">
+          <option value="text" <%= question.questionType === 'text' ? 'selected' : '' %>>Text Input</option>
+          <option value="textarea" <%= question.questionType === 'textarea' ? 'selected' : '' %>>Text Area</option>
+          <option value="radio" <%= question.questionType === 'radio' ? 'selected' : '' %>>Radio Button</option>
+          <option value="dropdown" <%= question.questionType === 'dropdown' ? 'selected' : '' %>>Dropdown</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="optionsGroup" style="display: <%= (question.questionType === 'radio' || question.questionType === 'dropdown') ? 'block' : 'none' %>;">
+        <label for="options">Options (comma-separated)</label>
+        <input type="text" id="options" name="options" value="<%= question.options.join(', ') %>" placeholder="Option 1, Option 2, Option 3">
+        <small style="color: var(--text-light);">For radio buttons and dropdowns</small>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="basic" <%= question.category === 'basic' ? 'selected' : '' %>>Basic Information</option>
+          <option value="performance" <%= question.category === 'performance' ? 'selected' : '' %>>Performance</option>
+          <option value="leadership" <%= question.category === 'leadership' ? 'selected' : '' %>>Leadership</option>
+          <option value="feedback" <%= question.category === 'feedback' ? 'selected' : '' %>>Feedback</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="required" <%= question.required ? 'checked' : '' %>>
+          Required Question
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="hasFollowUp" id="hasFollowUp" <%= question.hasFollowUp ? 'checked' : '' %> onchange="toggleFollowUp()">
+          Has Follow-up Question
+        </label>
+      </div>
+
+      <div id="followUpGroup" style="display: <%= question.hasFollowUp ? 'block' : 'none' %>;">
+        <div class="form-group">
+          <label for="followUpCondition">Show follow-up when answer is:</label>
+          <input type="text" id="followUpCondition" name="followUpCondition" value="<%= question.followUpCondition || '' %>" placeholder="e.g., No">
+        </div>
+
+        <div class="form-group">
+          <label for="followUpQuestion">Follow-up Question:</label>
+          <input type="text" id="followUpQuestion" name="followUpQuestion" value="<%= question.followUpQuestion || '' %>" placeholder="Please explain why:">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary">Update Question</button>
+        <a href="/admin/questions" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleOptions() {
+    const questionType = document.getElementById('questionType').value;
+    const optionsGroup = document.getElementById('optionsGroup');
+    
+    if (questionType === 'radio' || questionType === 'dropdown') {
+      optionsGroup.style.display = 'block';
+    } else {
+      optionsGroup.style.display = 'none';
+    }
+  }
+
+  function toggleFollowUp() {
+    const hasFollowUp = document.getElementById('hasFollowUp').checked;
+    const followUpGroup = document.getElementById('followUpGroup');
+    
+    if (hasFollowUp) {
+      followUpGroup.style.display = 'block';
+    } else {
+      followUpGroup.style.display = 'none';
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

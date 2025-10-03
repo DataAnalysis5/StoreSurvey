@@ -1,0 +1,184 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="form-container">
+    <h1>Employee Feedback Survey</h1>
+    <p style="color: var(--text-light); margin-bottom: 2rem;">
+      Please take a few minutes to complete this survey. All fields marked with <span class="required">*</span> are required.
+    </p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="error-message" style="background-color: #fee; padding: 1rem; border-radius: 0.375rem; margin-bottom: 1rem;">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/survey/submit" method="POST" id="surveyForm">
+      <% 
+        let basicQuestions = questions.filter(q => q.category === 'basic');
+        let otherQuestions = questions.filter(q => q.category !== 'basic');
+      %>
+
+       Basic Information Section 
+      <% if (basicQuestions.length > 0) { %>
+        <div class="card" style="margin-bottom: 2rem;">
+          <h2 class="card-title">Basic Information</h2>
+          
+          <% basicQuestions.forEach((question) => { %>
+            <div class="form-group">
+              <label for="<%= question._id %>">
+                <%= question.questionText %>
+                <% if (question.required) { %><span class="required">*</span><% } %>
+              </label>
+
+              <% if (question.questionType === 'text') { %>
+                <% 
+                  let fieldName = 'question_' + question._id;
+                  if (question.questionText.toLowerCase().includes('store name')) fieldName = 'storeName';
+                  if (question.questionText.toLowerCase().includes('store code')) fieldName = 'storeCode';
+                  if (question.questionText.toLowerCase().includes('email')) fieldName = 'email';
+                %>
+                <input 
+                  type="<%= question.questionText.toLowerCase().includes('email') ? 'email' : 'text' %>" 
+                  id="<%= question._id %>" 
+                  name="<%= fieldName %>"
+                  <%= question.required ? 'required' : '' %>
+                >
+
+              <% } else if (question.questionType === 'dropdown') { %>
+                <% 
+                  let fieldName = 'question_' + question._id;
+                  if (question.questionText.toLowerCase().includes('name') && !question.questionText.toLowerCase().includes('store')) fieldName = 'employeeName';
+                  if (question.questionText.toLowerCase().includes('department')) fieldName = 'department';
+                %>
+                <select 
+                  id="<%= question._id %>" 
+                  name="<%= fieldName %>"
+                  <%= question.required ? 'required' : '' %>
+                >
+                  <option value="">-- Select --</option>
+                  <% question.options.forEach((option) => { %>
+                    <option value="<%= option %>"><%= option %></option>
+                  <% }) %>
+                </select>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+       Survey Questions 
+      <% if (otherQuestions.length > 0) { %>
+        <div class="card" style="margin-bottom: 2rem;">
+          <h2 class="card-title">Survey Questions</h2>
+          
+          <% otherQuestions.forEach((question, index) => { %>
+            <div class="form-group">
+              <label>
+                <strong>Q<%= index + 1 %>.</strong> <%= question.questionText %>
+                <% if (question.required) { %><span class="required">*</span><% } %>
+              </label>
+
+              <% if (question.questionType === 'text') { %>
+                <input 
+                  type="text" 
+                  name="question_<%= question._id %>"
+                  <%= question.required ? 'required' : '' %>
+                >
+
+              <% } else if (question.questionType === 'textarea') { %>
+                <textarea 
+                  name="question_<%= question._id %>"
+                  <%= question.required ? 'required' : '' %>
+                ></textarea>
+
+              <% } else if (question.questionType === 'radio') { %>
+                <div class="radio-group">
+                  <% question.options.forEach((option) => { %>
+                    <div class="radio-option">
+                      <input 
+                        type="radio" 
+                        id="<%= question._id %>_<%= option.replace(/\s+/g, '_') %>" 
+                        name="question_<%= question._id %>"
+                        value="<%= option %>"
+                        <%= question.required ? 'required' : '' %>
+                        <% if (question.hasFollowUp) { %>
+                          onchange="toggleFollowUp('<%= question._id %>', '<%= question.followUpCondition %>', this.value)"
+                        <% } %>
+                      >
+                      <label for="<%= question._id %>_<%= option.replace(/\s+/g, '_') %>"><%= option %></label>
+                    </div>
+                  <% }) %>
+                </div>
+
+                 Follow-up question if applicable 
+                <% if (question.hasFollowUp && question.followUpQuestion) { %>
+                  <div id="followup_<%= question._id %>" style="display: none; margin-top: 1rem;">
+                    <label><%= question.followUpQuestion %></label>
+                    <input type="text" name="followup_<%= question._id %>">
+                  </div>
+                <% } %>
+
+              <% } else if (question.questionType === 'dropdown') { %>
+                <select 
+                  name="question_<%= question._id %>"
+                  <%= question.required ? 'required' : '' %>
+                >
+                  <option value="">-- Select --</option>
+                  <% question.options.forEach((option) => { %>
+                    <option value="<%= option %>"><%= option %></option>
+                  <% }) %>
+                </select>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button type="submit" class="btn btn-primary">Submit Survey</button>
+        <a href="/" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleFollowUp(questionId, condition, selectedValue) {
+    const followUpDiv = document.getElementById('followup_' + questionId);
+    if (followUpDiv) {
+      if (selectedValue === condition) {
+        followUpDiv.style.display = 'block';
+      } else {
+        followUpDiv.style.display = 'none';
+        // Clear the follow-up input when hidden
+        const followUpInput = followUpDiv.querySelector('input');
+        if (followUpInput) {
+          followUpInput.value = '';
+        }
+      }
+    }
+  }
+
+  // Form validation
+  document.getElementById('surveyForm').addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+      if (!field.value.trim()) {
+        isValid = false;
+        field.style.borderColor = 'var(--danger)';
+      } else {
+        field.style.borderColor = 'var(--border)';
+      }
+    });
+
+    if (!isValid) {
+      e.preventDefault();
+      alert('Please fill in all required fields');
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>
