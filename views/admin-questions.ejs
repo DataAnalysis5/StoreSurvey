@@ -36,6 +36,7 @@
           <option value="text">Text Input</option>
           <option value="textarea">Text Area</option>
           <option value="radio">Radio Button</option>
+          <option value="checkbox">Checkbox</option>
           <option value="dropdown">Dropdown</option>
         </select>
       </div>
@@ -43,7 +44,7 @@
       <div class="form-group" id="optionsGroup" style="display: none;">
         <label for="options">Options (comma-separated)</label>
         <input type="text" id="options" name="options" placeholder="Option 1, Option 2, Option 3">
-        <small style="color: var(--text-light);">For radio buttons and dropdowns</small>
+        <small style="color: var(--text-light);">For radio buttons, checkboxes, and dropdowns</small>
       </div>
 
       <div class="form-group">
@@ -146,7 +147,7 @@
     const questionType = document.getElementById('questionType').value;
     const optionsGroup = document.getElementById('optionsGroup');
     
-    if (questionType === 'radio' || questionType === 'dropdown') {
+    if (questionType === 'radio' || questionType === 'dropdown' || questionType === 'checkbox') {
       optionsGroup.style.display = 'block';
     } else {
       optionsGroup.style.display = 'none';
