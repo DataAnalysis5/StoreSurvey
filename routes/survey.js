@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
     const questions = await Question.find().sort({ order: 1 })
 
     res.render("survey", {
-      title: "Employee Feedback Survey",
+      title: "Complaint Handling Survey",
       questions,
     })
   } catch (error) {
@@ -26,15 +26,6 @@ router.post("/submit", async (req, res) => {
   try {
     const { storeName, storeCode, email, employeeName, department, ...answers } = req.body
 
-    // Validate required basic fields
-    if (!storeName || !storeCode || !email || !employeeName || !department) {
-      return res.render("survey", {
-        title: "Employee Feedback Survey",
-        questions: await Question.find().sort({ order: 1 }),
-        error: "Please fill in all required fields",
-      })
-    }
-
     // Get all questions to build answers array
     const questions = await Question.find().sort({ order: 1 })
     const answersArray = []
@@ -42,7 +33,7 @@ router.post("/submit", async (req, res) => {
     // Process each question's answer
     for (const question of questions) {
       const questionId = question._id.toString()
-      const answer = answers[`question_${questionId}`]
+      let answer = answers[`question_${questionId}`]
       const followUpAnswer = answers[`followup_${questionId}`]
 
       // Skip basic info questions (they're stored separately)
@@ -50,10 +41,21 @@ router.post("/submit", async (req, res) => {
         continue
       }
 
+      if (question.questionType === "checkbox") {
+        // If answer is an array, join it; if single value, convert to array
+        if (Array.isArray(answer)) {
+          answer = answer.join(", ")
+        } else if (answer) {
+          answer = answer
+        } else {
+          answer = null
+        }
+      }
+
       // Validate required questions
       if (question.required && !answer) {
         return res.render("survey", {
-          title: "Employee Feedback Survey",
+          title: "Complaint Handling Survey",
           questions,
           error: `Please answer: ${question.questionText}`,
         })
@@ -71,11 +73,11 @@ router.post("/submit", async (req, res) => {
 
     // Create response document
     const response = new Response({
-      storeName,
-      storeCode,
-      email: email.toLowerCase(),
-      employeeName,
-      department,
+      storeName: storeName || "N/A",
+      storeCode: storeCode || "N/A",
+      email: email ? email.toLowerCase() : "N/A",
+      employeeName: employeeName || "N/A",
+      department: department || "N/A",
       answers: answersArray,
       ipAddress: req.ip || req.connection.remoteAddress,
     })
