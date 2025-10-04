@@ -2,7 +2,7 @@
 
 <div class="container">
   <div class="form-container">
-    <h1>Employee Feedback Survey</h1>
+    <h1>Complaint Handling Survey</h1>
     <p style="color: var(--text-light); margin-bottom: 2rem;">
       Please take a few minutes to complete this survey. All fields marked with <span class="required">*</span> are required.
     </p>
@@ -119,6 +119,21 @@
                   </div>
                 <% } %>
 
+              <% } else if (question.questionType === 'checkbox') { %>
+                <div class="radio-group">
+                  <% question.options.forEach((option) => { %>
+                    <div class="radio-option">
+                      <input 
+                        type="checkbox" 
+                        id="<%= question._id %>_<%= option.replace(/\s+/g, '_') %>" 
+                        name="question_<%= question._id %>"
+                        value="<%= option %>"
+                      >
+                      <label for="<%= question._id %>_<%= option.replace(/\s+/g, '_') %>"><%= option %></label>
+                    </div>
+                  <% }) %>
+                </div>
+
               <% } else if (question.questionType === 'dropdown') { %>
                 <select 
                   name="question_<%= question._id %>"
@@ -166,7 +181,17 @@
     let isValid = true;
 
     requiredFields.forEach(field => {
-      if (!field.value.trim()) {
+      // Handle checkbox groups
+      if (field.type === 'checkbox') {
+        const checkboxGroup = this.querySelectorAll(`input[name="${field.name}"]`);
+        const isChecked = Array.from(checkboxGroup).some(cb => cb.checked);
+        if (!isChecked) {
+          isValid = false;
+          checkboxGroup[0].parentElement.parentElement.style.borderLeft = '3px solid var(--danger)';
+        } else {
+          checkboxGroup[0].parentElement.parentElement.style.borderLeft = 'none';
+        }
+      } else if (!field.value.trim()) {
         isValid = false;
         field.style.borderColor = 'var(--danger)';
       } else {
