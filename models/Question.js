@@ -9,7 +9,7 @@ const questionSchema = new mongoose.Schema(
     },
     questionType: {
       type: String,
-      enum: ["text", "radio", "dropdown", "textarea"],
+      enum: ["text", "radio", "dropdown", "textarea", "checkbox"],
       required: true,
     },
     options: {
