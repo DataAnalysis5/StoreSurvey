@@ -23,8 +23,63 @@
       <% if (basicQuestions.length > 0) { %>
         <div class="card" style="margin-bottom: 2rem;">
           <h2 class="card-title">Basic Information</h2>
-          
-          <% basicQuestions.forEach((question) => { %>
+
+          <% 
+            const deptQ = basicQuestions.find(q => q.questionType === 'dropdown' && q.questionText.toLowerCase().includes('department'));
+            const nameQ = basicQuestions.find(q => q.questionType === 'dropdown' && q.questionText.toLowerCase().includes('name') && !q.questionText.toLowerCase().includes('store'));
+          %>
+
+           Render Department ABOVE Name with fixed option list 
+          <% if (deptQ) { %>
+            <div class="form-group">
+              <label for="departmentSelect">
+                Department
+                <% if (deptQ.required) { %><span class="required">*</span><% } %>
+              </label>
+              <select 
+                id="departmentSelect" 
+                name="department"
+                <%= deptQ.required ? 'required' : '' %>
+              >
+                <option value="">-- Select Department --</option>
+                 Department options from updated requirements 
+                <option value="IT">IT</option>
+                <option value="Other">Other</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Franchise Project">Franchise Project</option>
+                <option value="Finance">Finance</option>
+                <option value="Product Quality">Product Quality</option>
+                <option value="KMR">KMR</option>
+                <option value="Management">Management</option>
+                <option value="Dispatch">Dispatch</option>
+              </select>
+            </div>
+          <% } %>
+
+           Render Name (disabled until Department selected). Options are filled dynamically 
+          <% if (nameQ) { %>
+            <div class="form-group">
+              <label for="employeeNameSelect">
+                Name
+                <% if (nameQ.required) { %><span class="required">*</span><% } %>
+              </label>
+              <select 
+                id="employeeNameSelect" 
+                name="employeeName"
+                data-required="<%= nameQ.required ? 'true' : 'false' %>"
+                disabled
+              >
+                <option value="">-- Select Name --</option>
+              </select>
+            </div>
+          <% } %>
+
+          <% 
+            basicQuestions.forEach((question) => { 
+              const isDept = question.questionText.toLowerCase().includes('department');
+              const isEmpName = question.questionText.toLowerCase().includes('name') && !question.questionText.toLowerCase().includes('store');
+              if (isDept || isEmpName) { return; }
+          %>
             <div class="form-group">
               <label for="<%= question._id %>">
                 <%= question.questionText %>
@@ -44,12 +99,10 @@
                   name="<%= fieldName %>"
                   <%= question.required ? 'required' : '' %>
                 >
-
               <% } else if (question.questionType === 'dropdown') { %>
                 <% 
+                  // For non-Department/Name dropdowns, keep default rendering
                   let fieldName = 'question_' + question._id;
-                  if (question.questionText.toLowerCase().includes('name') && !question.questionText.toLowerCase().includes('store')) fieldName = 'employeeName';
-                  if (question.questionText.toLowerCase().includes('department')) fieldName = 'department';
                 %>
                 <select 
                   id="<%= question._id %>" 
@@ -181,6 +234,9 @@
     let isValid = true;
 
     requiredFields.forEach(field => {
+      if (field.disabled) {
+        return; // skip disabled required controls
+      }
       // Handle checkbox groups
       if (field.type === 'checkbox') {
         const checkboxGroup = this.querySelectorAll(`input[name="${field.name}"]`);
@@ -191,7 +247,7 @@
         } else {
           checkboxGroup[0].parentElement.parentElement.style.borderLeft = 'none';
         }
-      } else if (!field.value.trim()) {
+      } else if (!field.value || (typeof field.value === 'string' && !field.value.trim())) {
         isValid = false;
         field.style.borderColor = 'var(--danger)';
       } else {
@@ -204,6 +260,79 @@
       alert('Please fill in all required fields');
     }
   });
+
+  (function() {
+    const deptToUsers = {
+      "IT": [
+        "Gauri Gaikwad","chintan","Sumit Deorepatil","Dipak","Kimaya Mandavkar","Pooja Kandu","Smira Kule","POS Support","Dipali Yesade","Shrushti"
+      ],
+      "Other": [
+        "Khagesh","samadhan","Prashant Tiwari","Gajanand Sanganti","Rishi","Pankil Padharia","Prathamesh Naik","Jotiba Jagtap","Sanket Dumbre","Mitali Vaishnav","Jay Naik","Vikrant","Bhavesh Nakrani","Deniel","Girish","Hardik","Anuradha Mishra","Shilpa","ashish.p","franchisedispatch","umangb"
+      ],
+      "Marketing": [
+        "Ranjeet Kumar","Hitesh Kudikyala","Mayuresh Kalambe"
+      ],
+      "Franchise Project": [
+        "Chandresh Gor","Mayur Chauhan","Saideep Mokal","Sanket Lakhani","Mayur Bhalala","Alpesh Dholakiya","Janak Parikhiya"
+      ],
+      "Finance": [
+        "Kinjal Soni"
+      ],
+      "Product Quality": [
+        "Mehul Soni","Pradeep Maurya","Nikhil Mahyavanshi","Senda Bhai","ruchi.k"
+      ],
+      "KMR": [
+        "Vicky"
+      ],
+      "Management": [
+        "Chethan Suvarna"
+      ],
+      "Dispatch": [
+        "Dharmesh Rajani"
+      ]
+    };
+
+    const deptSelect = document.getElementById('departmentSelect');
+    const nameSelect = document.getElementById('employeeNameSelect');
+
+    if (deptSelect && nameSelect) {
+      const isNameRequired = nameSelect.getAttribute('data-required') === 'true';
+
+      function resetNames() {
+        nameSelect.innerHTML = '';
+        const def = document.createElement('option');
+        def.value = '';
+        def.textContent = '-- Select Name --';
+        nameSelect.appendChild(def);
+      }
+
+      function populateNamesForDepartment(dept) {
+        resetNames();
+        if (dept && deptToUsers[dept]) {
+          const names = deptToUsers[dept];
+          names.forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n;
+            opt.textContent = n;
+            nameSelect.appendChild(opt);
+          });
+          nameSelect.disabled = false;
+          if (isNameRequired) nameSelect.setAttribute('required', '');
+        } else {
+          nameSelect.disabled = true;
+          nameSelect.removeAttribute('required');
+        }
+      }
+
+      // Initialize on load (covers pre-filled cases)
+      populateNamesForDepartment(deptSelect.value);
+
+      // Change handler
+      deptSelect.addEventListener('change', function() {
+        populateNamesForDepartment(this.value);
+      });
+    }
+  })();
 </script>
 
 <%- include('partials/footer') %>
