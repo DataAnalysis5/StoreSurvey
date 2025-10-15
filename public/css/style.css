@@ -175,13 +175,13 @@ main {
 }
 
 .radio-group {
-  display: flex;
+  display: inline;
   gap: 1.5rem;
   margin-top: 0.5rem;
 }
 
 .radio-option {
-  display: flex;
+  display: inline;
   align-items: center;
   gap: 0.5rem;
 }
